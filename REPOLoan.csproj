@@ -7,6 +7,7 @@
     <Authors>BetaFolf</Authors>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GameBaseDir>D:\SteamLibrary\steamapps\common\REPO</GameBaseDir>
   </PropertyGroup>
 
   <!-- Add Package Sources -->
@@ -27,6 +28,10 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" ExcludeAssets="runtime" />
     <PackageReference Include="UnityEngine.Modules" Version="2022.3.21" IncludeAssets="compile" PrivateAssets="all"/>
     <PackageReference Include="R.E.P.O.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
+
+    <Reference Include="MenuLib">
+      <HintPath>$(GameBaseDir)\BepInEx\plugins\nickklmao-MenuLib-2.5.0\MenuLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
