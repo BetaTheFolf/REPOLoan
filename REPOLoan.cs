@@ -15,20 +15,22 @@ public class REPOLoan : BaseUnityPlugin
 
     private ManualLogSource _logger => base.Logger;
 
-    private ConfigEntry<int> maxLoanAmount;
-    private ConfigEntry<int> minLoanAmount;
-    private ConfigEntry<int> maxLoanTerm;
-    private ConfigEntry<int> minLoanTerm;
-    private ConfigEntry<float> minInterestRate;
-    private ConfigEntry<float> maxInterestRate;
+    private ConfigEntry<int> _maxLoanAmount;
+    private ConfigEntry<int> _maxLoanTerm;
+    private ConfigEntry<float> _minInterestRate;
+    private ConfigEntry<float> _maxInterestRate;
+    private ConfigEntry<bool> _continueDebtBetweenGames;
+    private readonly string _configSection = "Debt Slave Options";
 
     private void Awake()
     {
         Instance = this;
+
+        SetupConfig();
         
         // Prevent the plugin from being deleted
-        this.gameObject.transform.parent = null;
-        this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+        gameObject.transform.parent = null;
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
 
         Patch();
 
@@ -37,7 +39,11 @@ public class REPOLoan : BaseUnityPlugin
 
     private void SetupConfig()
     {
-
+        _maxLoanAmount = Config.Bind<int>(_configSection, "MaxLoanAmount", 500_000, new ConfigDescription("The maximum amount that can be borrowed", new AcceptableValueRange<int>(5_000, 1_000_000)));
+        _maxLoanTerm = Config.Bind<int>(_configSection, "MaxLoanTerm", 10, new ConfigDescription("The maximum levels to take to pay back the loan", new AcceptableValueRange<int>(1, 20)));
+        _minInterestRate = Config.Bind<float>(_configSection, "MinInterestRate", 10.0f, new ConfigDescription("The minimum interest rate on the loan", new AcceptableValueRange<float>(0f, 30f)));
+        _maxInterestRate = Config.Bind<float>(_configSection, "MaxInterestRate", 50.0f, new ConfigDescription("The maximum interest rate on the loan", new AcceptableValueRange<float>(0f, 100f)));
+        _continueDebtBetweenGames = Config.Bind<bool>(_configSection, "ContinueDebtBetweenGames", false, new ConfigDescription("If the debt from a loan should carry over between games in the same lobby"));
     }
 
     internal void Patch()
