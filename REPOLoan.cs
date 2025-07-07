@@ -7,6 +7,7 @@ using UnityEngine;
 namespace REPOLoan;
 
 [BepInPlugin("BetaFolf.REPOLoan", "REPOLoan", "1.0")]
+[BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
 public class REPOLoan : BaseUnityPlugin
 {
     internal static REPOLoan Instance { get; private set; } = null!;
