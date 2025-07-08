@@ -8,23 +8,15 @@ namespace REPOLoan;
 internal static class LoanMenu
 {
     private static REPOPopupPage popupPage;
-    private static Boolean hasInitalized = false;
 
-    internal static void Initialize()
+    static LoanMenu()
     {
-        if (hasInitalized)
-        {
-            return;
-        }
-
         REPOLoan.Logger.LogInfo("Initialize popup");
         popupPage = MenuAPI.CreateREPOPopupPage("Repo Loan", false, false, 0, null);
         popupPage.AddElement(parent =>
         {
             MenuAPI.CreateREPOButton("Fuck You", OnButtonClick, parent);
         });
-
-        hasInitalized = true;
     }
 
     internal static void OnButtonClick() {

@@ -21,7 +21,6 @@ public static class LoanCommand
     [CommandAlias("loan")]
     public static void Execute(string args)
     {
-        LoanMenu.Initialize();
         LoanMenu.OpenPopup();
     }
 }
