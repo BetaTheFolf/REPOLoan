@@ -23,9 +23,7 @@ internal static class LoanManager
         _minInterestRate = REPOLoan.minInterestRateConfig.Value;
         _maxInterestRate = REPOLoan.maxInterestRateConfig.Value;
 
-        // TODO: Persist loans
         ActiveLoans = new List<Loan>();
-        ActiveLoans.Add(new Loan(1000, 10, 1f));
     }
 
     public static List<Loan> GetAvailableLoans()
@@ -64,7 +62,11 @@ internal static class LoanManager
         ActiveLoans.Add(loan);
 
         int currentMoney = SemiFunc.StatGetRunCurrency();
-        SemiFunc.StatSetRunCurrency(currentMoney + loan.Principal);
+        int total = currentMoney + (loan.Principal / 1000);
+
+        REPOLoan.Logger.LogInfo(currentMoney + " " + loan.Principal + " " + total);
+
+        SemiFunc.StatSetRunCurrency(total);
     }
 
     public static void MakeLoanPayments()

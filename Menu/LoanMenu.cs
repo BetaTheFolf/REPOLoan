@@ -9,16 +9,29 @@ internal static class LoanMenu
 
 {
     private static List<Loan> _loans;
+    private static string _loanMessage;
 
     static LoanMenu()
     {
         _loans = LoanManager.GetAvailableLoans();
+        _loanMessage = REPOLoan.loanActivationMessage.Value;
     }
 
     internal static void OnLoanButtonClick(REPOPopupPage popupPage, Loan loan)
     {
         popupPage.ClosePage(true);
-        REPOLoan.Logger.LogInfo(loan.ToString());
+        LoanManager.ActivateLoan(loan);
+
+        ChatManager instance = ChatManager.instance;
+
+        if (instance != null)
+        {
+            instance.PossessChatScheduleStart(-1);
+            instance.PossessChat(ChatManager.PossessChatID.Betrayal, _loanMessage, 1, Color.red, 0f, true);
+            // TODO: Make the loan detials show up on the taxman screen without saying it
+            // instance.PossessChat(ChatManager.PossessChatID.None, loan.ToString(), 1, Color.black, -1f, true);
+            instance.PossessChatScheduleEnd();
+        }
     }
 
     internal static void OpenPopup()
@@ -42,7 +55,7 @@ internal static class LoanMenu
 
             foreach (Loan loan in LoanManager.ActiveLoans)
             {
-                CreateModItem(popupPage, loan, false);
+                CreateModItem(popupPage, loan, false, true);
             }
 
             popupPage.AddElementToScrollView(parent =>
@@ -66,7 +79,7 @@ internal static class LoanMenu
 
         foreach (Loan loan in _loans)
         {
-            CreateModItem(popupPage, loan, true);
+            CreateModItem(popupPage, loan, true, false);
         }
 
         popupPage.AddElement(parent =>
@@ -83,7 +96,7 @@ internal static class LoanMenu
         popupPage.OpenPage(true);
     }
 
-    internal static void CreateModItem(REPOPopupPage popupPage, Loan loan, bool addButton)
+    internal static void CreateModItem(REPOPopupPage popupPage, Loan loan, bool addButton, bool showRemainingTerm)
     {
         popupPage.AddElementToScrollView(parent =>
             {
@@ -108,6 +121,15 @@ internal static class LoanMenu
             REPOLabel label = MenuAPI.CreateREPOLabel("Payment: $" + loan.PerLevelPayment, parent);
             return label.rectTransform;
         });
+
+        if (showRemainingTerm)
+        {
+            popupPage.AddElementToScrollView(parent =>
+            {
+                REPOLabel label = MenuAPI.CreateREPOLabel("Remaining Term: " + loan.RemainingTerm, parent);
+                return label.rectTransform;
+            });
+        }
 
         if (addButton)
         {

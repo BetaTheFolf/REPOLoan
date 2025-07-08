@@ -10,22 +10,25 @@ internal class Loan
     public int CurrentTerm;
     public int RemainingBalance;
     public int PerLevelPayment;
+    public int RemainingTerm;
 
     public Loan(int principal, int term, float interestRate)
     {
         Principal = principal;
         TermLength = term;
+        RemainingTerm = term;
         InterestRate = MathF.Round(interestRate, 2);
         PerLevelPayment = calculatePerLevelPayment(principal, term, InterestRate);
     }
 
     public int MakePayment()
     {
-        int currentMoney = SemiFunc.StatGetRunCurrency();
+        int currentMoney = SemiFunc.StatGetRunCurrency() / 1000;
         SemiFunc.StatSetRunCurrency(currentMoney - PerLevelPayment);
 
         CurrentTerm += 1;
         RemainingBalance -= PerLevelPayment;
+        RemainingTerm -= 1;
 
         return RemainingBalance;
     }
@@ -40,6 +43,6 @@ internal class Loan
 
     public override string ToString()
     {
-        return $"Loan: Principal=${Principal}, Term={TermLength} periods, InterestRate={InterestRate:F2}%, PerLevelPayment=${PerLevelPayment}, RemainingBalance=${RemainingBalance}, CurrentTerm={CurrentTerm}";
+        return "Principal: " + Principal + "\nTerm: " + TermLength + "\nInterest Rate: " + InterestRate + "%" + "\nPayment: " + PerLevelPayment;
     }
 }
