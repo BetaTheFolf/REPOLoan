@@ -10,7 +10,6 @@ public static class LoanCommand
     [CommandInitializer]
     public static void Initalize()
     {
-
     }
 
     [CommandExecution(
@@ -22,6 +21,7 @@ public static class LoanCommand
     [CommandAlias("loan")]
     public static void Execute(string args)
     {
-        REPOLoan.Logger.LogInfo("Hello World!");
+        LoanMenu.Initialize();
+        LoanMenu.OpenPopup();
     }
 }
