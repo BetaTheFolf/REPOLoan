@@ -15,16 +15,17 @@ internal class Loan
     {
         Principal = principal;
         TermLength = term;
-        InterestRate = interestRate;
-        PerLevelPayment = calculatePerLevelPayment(principal, term, interestRate);
+        InterestRate = MathF.Round(interestRate, 2);
+        PerLevelPayment = calculatePerLevelPayment(principal, term, InterestRate);
     }
 
     public int MakePayment()
     {
+        int currentMoney = SemiFunc.StatGetRunCurrency();
+        SemiFunc.StatSetRunCurrency(currentMoney - PerLevelPayment);
+
         CurrentTerm += 1;
         RemainingBalance -= PerLevelPayment;
-
-        // TODO: Update user money
 
         return RemainingBalance;
     }
@@ -33,7 +34,7 @@ internal class Loan
     {
         float totalInterest = principal * (interestRate / 100f);
         float totalPayable = principal + totalInterest;
-        
+
         return (int)Math.Ceiling(totalPayable / term);
     }
 

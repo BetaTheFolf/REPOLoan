@@ -5,7 +5,7 @@ namespace REPOLoan;
 
 internal static class LoanManager
 {
-    private static List<Loan> _activeLoans;
+    public static List<Loan> ActiveLoans;
     private static int _maxLoanAmount;
     private static int _maxLoanTerm;
     private static int _loanOffersAmount;
@@ -14,9 +14,9 @@ internal static class LoanManager
 
     private static Random _rand = new Random();
 
-    // Replaces the constructor
     static LoanManager()
     {
+        // FIXME: If a user changes the settings mid game this won't get updated
         _maxLoanAmount = REPOLoan.maxLoanAmountConfig.Value;
         _maxLoanTerm = REPOLoan.maxLoanTermConfig.Value;
         _loanOffersAmount = REPOLoan.loanOffersConfig.Value;
@@ -24,7 +24,8 @@ internal static class LoanManager
         _maxInterestRate = REPOLoan.maxInterestRateConfig.Value;
 
         // TODO: Persist loans
-        _activeLoans = new List<Loan>();
+        ActiveLoans = new List<Loan>();
+        ActiveLoans.Add(new Loan(1000, 10, 1f));
     }
 
     public static List<Loan> GetAvailableLoans()
@@ -41,8 +42,6 @@ internal static class LoanManager
             float minRateForThisLoan = Math.Max(_minInterestRate, _maxInterestRate - (_maxInterestRate - _minInterestRate) * t);
             float maxRateForThisLoan = _maxInterestRate - (_maxInterestRate - _minInterestRate) * t * 0.5f; // prevent overlap
             float interestRate = (float)(_rand.NextDouble() * (maxRateForThisLoan - minRateForThisLoan) + minRateForThisLoan);
-
-            REPOLoan.Logger.LogInfo(interestRate);
 
             // 3. Max term: longer for higher balances
             int minTerm = 2;
@@ -62,20 +61,22 @@ internal static class LoanManager
 
     public static void ActivateLoan(Loan loan)
     {
-        _activeLoans.Add(loan);
-        // TODO: Give users money
+        ActiveLoans.Add(loan);
+
+        int currentMoney = SemiFunc.StatGetRunCurrency();
+        SemiFunc.StatSetRunCurrency(currentMoney + loan.Principal);
     }
 
     public static void MakeLoanPayments()
     {
-        for (int i = _activeLoans.Count - 1; i >= 0; i--)
+        for (int i = ActiveLoans.Count - 1; i >= 0; i--)
         {
-            Loan loan = _activeLoans[i];
+            Loan loan = ActiveLoans[i];
             int remainingBalance = loan.MakePayment();
 
             if (remainingBalance < 0)
             {
-                _activeLoans.RemoveAt(i);
+                ActiveLoans.RemoveAt(i);
             }
         }
     }
