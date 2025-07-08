@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MenuLib;
 using MenuLib.MonoBehaviors;
 
@@ -32,8 +33,8 @@ internal static class LoanMenu
 
     internal static void OpenPopup()
     {
-        var loans = LoanManager.GetAvailableLoans();
-        foreach (var loan in loans)
+        List<Loan> loans = LoanManager.GetAvailableLoans();
+        foreach (Loan loan in loans)
         {
             REPOLoan.Logger.LogInfo(loan.ToString());
         }

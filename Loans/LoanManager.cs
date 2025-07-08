@@ -29,7 +29,7 @@ internal static class LoanManager
 
     public static List<Loan> GetAvailableLoans()
     {
-        var loans = new List<Loan>();
+        List<Loan> loans = new List<Loan>();
 
         for (int i = 0; i < _loanOffersAmount; i++)
         {
@@ -51,7 +51,7 @@ internal static class LoanManager
             term = Math.Clamp(term, minTerm, _maxLoanTerm);
 
             // 4. Construct loan (interest rate is in percent, as expected)
-            var loan = new Loan(principal, term, interestRate);
+            Loan loan = new Loan(principal, term, interestRate);
             loans.Add(loan);
         }
 
@@ -70,8 +70,8 @@ internal static class LoanManager
     {
         for (int i = _activeLoans.Count - 1; i >= 0; i--)
         {
-            var loan = _activeLoans[i];
-            var remainingBalance = loan.MakePayment();
+            Loan loan = _activeLoans[i];
+            int remainingBalance = loan.MakePayment();
 
             if (remainingBalance < 0)
             {
