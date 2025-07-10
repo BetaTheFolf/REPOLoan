@@ -28,7 +28,7 @@ internal static class LoanMenu
         {
             instance.PossessChatScheduleStart(-1);
             instance.PossessChat(ChatManager.PossessChatID.Betrayal, _loanMessage, 1, Color.red, 0f, true);
-            // TODO: Make the loan detials show up on the taxman screen without saying it
+            // TODO: Make the loan details show up on the taxman screen without saying it
             // instance.PossessChat(ChatManager.PossessChatID.None, loan.ToString(), 1, Color.black, -1f, true);
             instance.PossessChatScheduleEnd();
         }

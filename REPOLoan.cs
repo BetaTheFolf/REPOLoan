@@ -37,6 +37,8 @@ public class REPOLoan : BaseUnityPlugin
 
         Patch();
 
+        SaveDataManager.Initialize();
+
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
     }
 

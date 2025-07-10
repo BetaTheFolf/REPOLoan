@@ -4,16 +4,18 @@ namespace REPOLoan;
 
 internal class Loan
 {
-    public int Principal;
-    public int TermLength;
-    public float InterestRate;
-    public int CurrentTerm;
-    public int RemainingBalance;
-    public int PerLevelPayment;
-    public int RemainingTerm;
+    public string LoanID { get; set; }
+    public int Principal { get; set; }
+    public int TermLength { get; set; }
+    public float InterestRate { get; set; }
+    public int CurrentTerm { get; set; }
+    public int RemainingBalance { get; set; }
+    public int PerLevelPayment { get; set; }
+    public int RemainingTerm { get; set; }
 
     public Loan(int principal, int term, float interestRate)
     {
+        LoanID = Guid.NewGuid().ToString();
         Principal = principal;
         TermLength = term;
         RemainingTerm = term;
