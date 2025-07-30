@@ -4,7 +4,7 @@ using UnityEngine;
 namespace REPOLoan;
 
 [HarmonyPatch(typeof(PlayerController))]
-static class ExamplePlayerControllerPatch
+public class ExamplePlayerControllerPatch
 {
     [HarmonyPrefix, HarmonyPatch(nameof(PlayerController.Start))]
     private static void Start_Prefix(PlayerController __instance)

@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
+using Steamworks;
+using Steamworks.Data;
 
 namespace REPOLoan;
 
@@ -60,11 +63,12 @@ internal static class LoanManager
     public static void ActivateLoan(Loan loan)
     {
         ActiveLoans.Add(loan);
+        SaveDataManager.AddLobbyLoan(getLobbyId(), loan);
 
         int currentMoney = SemiFunc.StatGetRunCurrency();
         int total = currentMoney + (loan.Principal / 1000);
 
-        REPOLoan.Logger.LogInfo(currentMoney + " " + loan.Principal + " " + total);
+        REPOLoan.Logger.LogInfo("Loan activated");
 
         SemiFunc.StatSetRunCurrency(total);
     }
@@ -79,7 +83,26 @@ internal static class LoanManager
             if (remainingBalance < 0)
             {
                 ActiveLoans.RemoveAt(i);
+                SaveDataManager.RemoveLobbyLoan(getLobbyId(), loan.LoanID);
             }
         }
+    }
+
+    private static string getLobbyId()
+    {
+        return StatsManager.instance.saveFileCurrent;
+    }
+
+    public static Loan[] getNewLoans()
+    {
+        List<Loan> newLoans = new List<Loan>();
+        foreach (var loan in ActiveLoans)
+        {
+            if (loan.RemainingTerm == loan.TermLength)
+            {
+                newLoans.Add(loan);
+            }
+        }
+        return newLoans.ToArray();
     }
 }

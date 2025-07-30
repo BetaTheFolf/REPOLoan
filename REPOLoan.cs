@@ -55,7 +55,10 @@ public class REPOLoan : BaseUnityPlugin
 
     internal void Patch()
     {
-        Harmony ??= new Harmony(Info.Metadata.GUID);
+        if (Harmony == null)
+        {
+            Harmony = new Harmony(Info.Metadata.GUID);
+        }
         Harmony.PatchAll();
     }
 

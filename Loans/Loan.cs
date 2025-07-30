@@ -26,6 +26,7 @@ internal class Loan
     public int MakePayment()
     {
         int currentMoney = SemiFunc.StatGetRunCurrency() / 1000;
+        REPOLoan.Logger.LogInfo("Making loan payment: " + PerLevelPayment);
         SemiFunc.StatSetRunCurrency(currentMoney - PerLevelPayment);
 
         CurrentTerm += 1;

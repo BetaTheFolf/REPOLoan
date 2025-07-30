@@ -12,14 +12,18 @@ internal static class SaveDataManager
 
     public static void Initialize()
     {
+        string directory = Path.GetDirectoryName(_configFilePath);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
         if (!File.Exists(_configFilePath))
         {
             _persistedLoans = new Dictionary<string, List<Loan>>();
-
             string startingJSONString = JsonConvert.SerializeObject(_persistedLoans, Formatting.Indented);
 
             REPOLoan.Logger.LogInfo("Path: " + _configFilePath);
-
             File.WriteAllText(_configFilePath, startingJSONString);
         }
         else
@@ -32,23 +36,20 @@ internal static class SaveDataManager
 
     public static List<Loan> GetLobbyLoans(string lobbyId)
     {
-        return _persistedLoans[lobbyId];
+        return _persistedLoans.TryGetValue(lobbyId, out var loans) ? loans : new List<Loan>();
     }
 
     public static void AddLobbyLoan(string lobbyId, Loan loan)
     {
         addLoanToJsonData(_configFilePath, lobbyId, loan);
 
-        List<Loan> existingLobbyLoans = _persistedLoans[lobbyId];
-
-        if (existingLobbyLoans == null)
+        if (!_persistedLoans.TryGetValue(lobbyId, out var existingLobbyLoans))
         {
-            _persistedLoans.Add(lobbyId, new List<Loan> { loan });
+            _persistedLoans[lobbyId] = new List<Loan> { loan };
         }
         else
         {
             existingLobbyLoans.Add(loan);
-            _persistedLoans[lobbyId] = existingLobbyLoans;
         }
     }
 
@@ -56,41 +57,32 @@ internal static class SaveDataManager
     {
         removeLoanFromJsonData(_configFilePath, lobbyId, loanId);
 
-        if (_persistedLoans[lobbyId] != null)
+        if (_persistedLoans.TryGetValue(lobbyId, out var loans))
         {
-            _persistedLoans[lobbyId].RemoveAll(loan => loan.LoanID == loanId);
+            loans.RemoveAll(loan => loan.LoanID == loanId);
         }
     }
 
     public static void RemoveLobby(string lobbyId)
     {
         removeLobbyFromJsonData(_configFilePath, lobbyId);
-
-        if (_persistedLoans[lobbyId] != null)
-        {
-            _persistedLoans.Remove(lobbyId);
-        }
+        _persistedLoans.Remove(lobbyId); // Safe to call even if key doesn't exist
     }
 
     public static void UpdateLoan(string lobbyId, Loan loan)
     {
         updateLoanInJsonData(_configFilePath, lobbyId, loan);
 
-        if (_persistedLoans[lobbyId] == null)
+        if (!_persistedLoans.TryGetValue(lobbyId, out var existingLobbyLoans))
         {
             return;
         }
 
-        List<Loan> existingLobbyLoans = _persistedLoans[lobbyId];
         int index = existingLobbyLoans.FindIndex(l => l.LoanID == loan.LoanID);
-
-        if (index == -1)
+        if (index != -1)
         {
-            return;
+            existingLobbyLoans[index] = loan;
         }
-
-        existingLobbyLoans[index] = loan;
-        _persistedLoans[lobbyId] = existingLobbyLoans;
     }
 
     private static Dictionary<string, List<Loan>> loadJsonData(string filePath)
@@ -101,15 +93,13 @@ internal static class SaveDataManager
         }
 
         string json = File.ReadAllText(filePath);
-
         return JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new Dictionary<string, List<Loan>>();
     }
 
     private static void addLoanToJsonData(string filePath, string lobbyId, Loan loan)
     {
         string json = File.ReadAllText(filePath);
-
-        Dictionary<string, List<Loan>> jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new Dictionary<string, List<Loan>>();
+        var jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new();
 
         if (!jsonData.ContainsKey(lobbyId))
         {
@@ -117,67 +107,48 @@ internal static class SaveDataManager
         }
 
         jsonData[lobbyId].Add(loan);
-
-        string updatedJson = JsonConvert.SerializeObject(jsonData, Formatting.Indented);
-        File.WriteAllText(filePath, updatedJson);
+        File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonData, Formatting.Indented));
     }
 
     private static void updateLoanInJsonData(string filePath, string lobbyId, Loan loan)
     {
         string json = File.ReadAllText(filePath);
+        var jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new();
 
-        Dictionary<string, List<Loan>> jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new Dictionary<string, List<Loan>>();
-
-        if (!jsonData.ContainsKey(lobbyId))
+        if (jsonData.TryGetValue(lobbyId, out var loans))
         {
-            jsonData[lobbyId] = new List<Loan>();
+            int index = loans.FindIndex(l => l.LoanID == loan.LoanID);
+            if (index != -1)
+            {
+                loans[index] = loan;
+                jsonData[lobbyId] = loans;
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonData, Formatting.Indented));
+            }
         }
-
-        List<Loan> loans = jsonData[lobbyId];
-        int index = loans.FindIndex(l => l.LoanID == loan.LoanID);
-
-        if (index == -1)
-        {
-            return;
-        }
-
-        loans[index] = loan;
-        jsonData[lobbyId] = loans;
-
-        string updatedJson = JsonConvert.SerializeObject(jsonData, Formatting.Indented);
-        File.WriteAllText(filePath, updatedJson);
     }
 
     private static void removeLoanFromJsonData(string filePath, string lobbyId, string loanId)
     {
         string json = File.ReadAllText(filePath);
+        var jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new();
 
-        Dictionary<string, List<Loan>> jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new Dictionary<string, List<Loan>>();
-
-        if (!jsonData.ContainsKey(lobbyId))
+        if (jsonData.TryGetValue(lobbyId, out var loans))
         {
-            return;
+            loans.RemoveAll(loan => loan.LoanID == loanId);
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonData, Formatting.Indented));
         }
-
-        jsonData[lobbyId].RemoveAll(loan => loan.LoanID == loanId);
-
-        string updatedJson = JsonConvert.SerializeObject(jsonData, Formatting.Indented);
-        File.WriteAllText(filePath, updatedJson);
     }
 
     private static void removeLobbyFromJsonData(string filePath, string lobbyId)
     {
-        if (!File.Exists(filePath))
-        {
-            return;
-        }
+        if (!File.Exists(filePath)) return;
 
         string json = File.ReadAllText(filePath);
-        Dictionary<string, List<Loan>> jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new Dictionary<string, List<Loan>>();
+        var jsonData = JsonConvert.DeserializeObject<Dictionary<string, List<Loan>>>(json) ?? new();
 
-        jsonData.Remove(lobbyId);
-
-        string updatedJson = JsonConvert.SerializeObject(jsonData, Formatting.Indented);
-        File.WriteAllText(filePath, updatedJson);
+        if (jsonData.Remove(lobbyId))
+        {
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonData, Formatting.Indented));
+        }
     }
 }
