@@ -4,6 +4,8 @@ namespace REPOLoan.Data.Models {
     public class LoanModConfig {
         private const string CONFIG_CATEGORY = "Debt Slave Options";
 
+        public ConfigFile Config { get; }
+
         public LoanModConfig(ConfigFile Config) {
             MaxLoanAmount = Config.Bind(CONFIG_CATEGORY, nameof(MaxLoanAmount), 200_000, new ConfigDescription("The maximum amount that can be borrowed", new AcceptableValueRange<int>(1_000, 1_000_000)));
             MaxLoanTerm = Config.Bind(CONFIG_CATEGORY, nameof(MaxLoanTerm), 10, new ConfigDescription("The maximum levels to take to pay back the loan", new AcceptableValueRange<int>(2, 20)));
@@ -12,6 +14,8 @@ namespace REPOLoan.Data.Models {
             MaxInterestRate = Config.Bind(CONFIG_CATEGORY, nameof(MaxInterestRate), 10.0f, new ConfigDescription("The maximum interest rate on the loan", new AcceptableValueRange<float>(0f, 100f)));
             ContinueDebtBetweenGames = Config.Bind(CONFIG_CATEGORY, nameof(ContinueDebtBetweenGames), false, new ConfigDescription("If the debt from a loan should carry over between games in the same lobby"));
             LoanActivationMessage = Config.Bind(CONFIG_CATEGORY, nameof(LoanActivationMessage), "I LOVE DEBT", new ConfigDescription("The message a player says when they take out a loan"));
+
+            this.Config = Config;
         }
 
         public ConfigEntry<int> MaxLoanAmount { get; set; }
