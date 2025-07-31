@@ -14,7 +14,7 @@ internal static class LoanMenu
     static LoanMenu()
     {
         _loans = LoanManager.GetAvailableLoans();
-        _loanMessage = REPOLoan.loanActivationMessage.Value;
+        _loanMessage = REPOLoan.LoanModConfig.LoanActivationMessage.Value;
     }
 
     internal static void OnLoanButtonClick(REPOPopupPage popupPage, Loan loan)
