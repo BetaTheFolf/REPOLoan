@@ -26,7 +26,7 @@ internal class Loan
     public int MakePayment()
     {
         int currentMoney = SemiFunc.StatGetRunCurrency() / 1000;
-        REPOLoan.Logger.LogInfo("Making loan payment: " + PerLevelPayment);
+        REPOLoan.Logger.LogInfo($"Making loan payment: {PerLevelPayment}");
         SemiFunc.StatSetRunCurrency(currentMoney - PerLevelPayment);
 
         CurrentTerm += 1;
@@ -41,11 +41,16 @@ internal class Loan
         float totalInterest = principal * (interestRate / 100f);
         float totalPayable = principal + totalInterest;
 
-        return (int)Math.Ceiling(totalPayable / term);
+        return (int)totalPayable / term;
     }
 
     public override string ToString()
     {
-        return "Principal: " + Principal + "\nTerm: " + TermLength + "\nInterest Rate: " + InterestRate + "%" + "\nPayment: " + PerLevelPayment;
+        return $"""
+            Principal: {Principal}
+            Term: {TermLength}
+            Interest Rate: {InterestRate}
+            Payment: {PerLevelPayment}
+            """;
     }
 }
