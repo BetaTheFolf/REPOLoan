@@ -25,9 +25,8 @@ internal static class LoanManager {
 
             var principal = rng.Next(1000, loanModConfig.MaxLoanAmount.Value);
             var principalMultiplier = (float)principal / loanModConfig.MaxLoanAmount.Value;
-            principalMultiplier = 1 - principalMultiplier;
 
-            var interestRate = (loanModConfig.MaxInterestRate.Value - loanModConfig.MinInterestRate.Value) * principalMultiplier;
+            var interestRate = (loanModConfig.MaxInterestRate.Value - loanModConfig.MinInterestRate.Value) * (1 - principalMultiplier);
             interestRate += loanModConfig.MinInterestRate.Value;
 
             var minTerm = 2;
