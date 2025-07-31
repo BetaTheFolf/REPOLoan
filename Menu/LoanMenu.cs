@@ -89,7 +89,7 @@ internal static class LoanMenu {
 
     internal static void CreateModItem(REPOPopupPage popupPage, Loan loan, bool addButton, bool showRemainingTerm) {
         popupPage.AddElementToScrollView(parent => {
-            REPOLabel label = MenuAPI.CreateREPOLabel("Principal: $" + loan.Principal, parent);
+            REPOLabel label = MenuAPI.CreateREPOLabel($"Principal: ${loan.Principal}:N0", parent);
             return label.rectTransform;
         });
 
@@ -104,7 +104,7 @@ internal static class LoanMenu {
         });
 
         popupPage.AddElementToScrollView(parent => {
-            REPOLabel label = MenuAPI.CreateREPOLabel("Payment: $" + loan.PerLevelPayment, parent);
+            REPOLabel label = MenuAPI.CreateREPOLabel($"Payment: ${loan.PerLevelPayment:N0}", parent);
             return label.rectTransform;
         });
 
