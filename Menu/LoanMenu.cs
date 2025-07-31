@@ -106,7 +106,7 @@ internal static class LoanMenu
 
         popupPage.AddElementToScrollView(parent =>
         {
-            REPOLabel label = MenuAPI.CreateREPOLabel("Interest Rate: " + loan.InterestRate * 100 + "%", parent);
+            REPOLabel label = MenuAPI.CreateREPOLabel("Interest Rate: " + loan.InterestRate + "%", parent);
             return label.rectTransform;
         });
 

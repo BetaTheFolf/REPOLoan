@@ -38,7 +38,7 @@ internal class Loan
 
     private int calculatePerLevelPayment(int principal, int term, float interestRate)
     {
-        float totalInterest = principal * interestRate;
+        float totalInterest = principal * (interestRate / 100f);
         float totalPayable = principal + totalInterest;
 
         return (int)totalPayable / term;
