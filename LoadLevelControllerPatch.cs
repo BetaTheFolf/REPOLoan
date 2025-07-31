@@ -33,7 +33,7 @@ public class LoadLevelControllerPatch
         {
             // Check if users spent more than loan amount
             var currentMoney = SemiFunc.StatGetRunCurrency();
-            var totalNewLoans = LoanManager.getNewLoans();
+            var totalNewLoans = LoanManager.GetNewLoans();
 
             // Total amount for new loans
             var totalNewLoanAmount = 0;

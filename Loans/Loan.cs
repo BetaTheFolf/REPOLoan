@@ -2,8 +2,7 @@ using System;
 
 namespace REPOLoan;
 
-internal class Loan
-{
+internal class Loan {
     public string LoanID { get; set; }
     public int Principal { get; set; }
     public int TermLength { get; set; }
@@ -13,18 +12,16 @@ internal class Loan
     public int PerLevelPayment { get; set; }
     public int RemainingTerm { get; set; }
 
-    public Loan(int principal, int term, float interestRate)
-    {
+    public Loan(int principal, int term, float interestRate) {
         LoanID = Guid.NewGuid().ToString();
         Principal = principal;
         TermLength = term;
         RemainingTerm = term;
         InterestRate = MathF.Round(interestRate, 2);
-        PerLevelPayment = calculatePerLevelPayment(principal, term, InterestRate);
+        PerLevelPayment = CalculatePerLevelPayment(principal, term, InterestRate);
     }
 
-    public int MakePayment()
-    {
+    public int MakePayment() {
         int currentMoney = SemiFunc.StatGetRunCurrency() / 1000;
         REPOLoan.Logger.LogInfo($"Making loan payment: {PerLevelPayment}");
         SemiFunc.StatSetRunCurrency(currentMoney - PerLevelPayment);
@@ -36,8 +33,7 @@ internal class Loan
         return RemainingBalance;
     }
 
-    private int calculatePerLevelPayment(int principal, int term, float interestRate)
-    {
+    private int CalculatePerLevelPayment(int principal, int term, float interestRate) {
         float totalInterest = principal * (interestRate / 100f);
         float totalPayable = principal + totalInterest;
 
@@ -49,8 +45,7 @@ internal class Loan
         return payment;
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"""
             Principal: {Principal}
             Term: {TermLength}

@@ -13,12 +13,12 @@ internal static class LoanMenu {
 
     static LoanMenu() {
         REPOLoan.LoanModConfig.Config.SettingChanged += Config_SettingChanged;
-        _loans = LoanManager.GetAvailableLoans();
+        _loans = LoanManager.ConstructLoansLoans();
         _loanMessage = REPOLoan.LoanModConfig.LoanActivationMessage.Value;
     }
 
     private static void Config_SettingChanged(object sender, BepInEx.Configuration.SettingChangedEventArgs e) {
-        _loans = LoanManager.GetAvailableLoans();
+        _loans = LoanManager.ConstructLoansLoans();
     }
 
     internal static void OnLoanButtonClick(REPOPopupPage popupPage, Loan loan) {

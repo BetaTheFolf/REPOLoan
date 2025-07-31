@@ -11,7 +11,7 @@ internal static class LoanManager {
         ActiveLoans = [];
     }
 
-    public static List<Loan> GetAvailableLoans() {
+    public static List<Loan> ConstructLoansLoans() {
         var loanModConfig = REPOLoan.LoanModConfig;
         List<Loan> loans = [];
 
@@ -44,7 +44,7 @@ internal static class LoanManager {
 
     public static void ActivateLoan(Loan loan) {
         ActiveLoans.Add(loan);
-        SaveDataManager.AddLobbyLoan(getLobbyId(), loan);
+        SaveDataManager.AddLobbyLoan(GetLobbyId(), loan);
 
         int currentMoney = SemiFunc.StatGetRunCurrency();
         int total = currentMoney + (loan.Principal / 1000);
@@ -60,16 +60,16 @@ internal static class LoanManager {
 
             if (remainingBalance < 0) {
                 ActiveLoans.RemoveAt(i);
-                SaveDataManager.RemoveLobbyLoan(getLobbyId(), loan.LoanID);
+                SaveDataManager.RemoveLobbyLoan(GetLobbyId(), loan.LoanID);
             }
         }
     }
 
-    private static string getLobbyId() {
+    private static string GetLobbyId() {
         return StatsManager.instance.saveFileCurrent;
     }
 
-    public static Loan[] getNewLoans() {
+    public static Loan[] GetNewLoans() {
         List<Loan> newLoans = new List<Loan>();
         foreach (var loan in ActiveLoans) {
             if (loan.RemainingTerm == loan.TermLength) {
