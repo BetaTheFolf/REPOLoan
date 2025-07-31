@@ -25,6 +25,7 @@ internal static class LoanManager {
 
             var principal = rng.Next(1000, loanModConfig.MaxLoanAmount.Value);
             var principalMultiplier = (float)principal / loanModConfig.MaxLoanAmount.Value;
+            principalMultiplier = 1 - principalMultiplier;
 
             var interestRate = (loanModConfig.MaxInterestRate.Value - loanModConfig.MinInterestRate.Value) * principalMultiplier;
             interestRate += loanModConfig.MinInterestRate.Value;
@@ -36,7 +37,7 @@ internal static class LoanManager {
             loans.Add(new Loan(principal, (int)loanTerm, interestRate));
         }
 
-        loans.OrderBy(i => i.Principal);
+        loans = loans.OrderBy(i => i.Principal).ToList();
         return loans;
     }
 
