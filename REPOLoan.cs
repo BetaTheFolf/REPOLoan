@@ -18,9 +18,9 @@ public class REPOLoan : BaseUnityPlugin {
     public LoanModeConfig LoanModeConfig { get; set; }
 
     internal new static ManualLogSource Logger => Singleton._logger;
-    internal Harmony? Harmony { get; set; }
-
     private ManualLogSource _logger => base.Logger;
+
+    internal Harmony? Harmony { get; set; }
 
     private void Awake() {
         Singleton = this;
