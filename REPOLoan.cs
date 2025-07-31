@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using BepInEx.Logging;
 
 using HarmonyLib;
@@ -13,18 +12,26 @@ namespace REPOLoan;
 [BepInPlugin("BetaFolf.REPOLoan", "REPOLoan", "1.0")]
 [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
 public class REPOLoan : BaseUnityPlugin {
-    internal static REPOLoan Singleton { get; private set; } = null!;
+    internal static REPOLoan Singleton { get; private set; }
+    public static LoanModConfig LoanModConfig { get; set; }
 
-    public LoanModeConfig LoanModeConfig { get; set; }
+    internal new static ManualLogSource Logger {
+        get {
+            return Singleton._logger;
+        }
+    }
 
-    internal new static ManualLogSource Logger => Singleton._logger;
-    private ManualLogSource _logger => base.Logger;
+    private ManualLogSource _logger {
+        get {
+            return base.Logger;
+        }
+    }
 
     internal Harmony? Harmony { get; set; }
 
     private void Awake() {
         Singleton = this;
-        LoanModeConfig = new LoanModeConfig(Config, "Debt Slave Options");
+        LoanModConfig = new LoanModConfig(Config);
 
         // Prevent the plugin from being deleted
         gameObject.transform.parent = null;
@@ -33,7 +40,6 @@ public class REPOLoan : BaseUnityPlugin {
         Patch();
 
         SaveDataManager.Initialize();
-
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
     }
 

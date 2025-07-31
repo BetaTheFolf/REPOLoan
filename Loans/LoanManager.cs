@@ -1,67 +1,46 @@
 using System;
 using System.Collections.Generic;
-using HarmonyLib;
-using Steamworks;
-using Steamworks.Data;
+using System.Linq;
 
 namespace REPOLoan;
 
-internal static class LoanManager
-{
+internal static class LoanManager {
     public static List<Loan> ActiveLoans;
-    private static int _maxLoanAmount;
-    private static int _maxLoanTerm;
-    private static int _loanOffersAmount;
-    private static float _minInterestRate;
-    private static float _maxInterestRate;
 
-    private static Random _rand = new Random();
-
-    static LoanManager()
-    {
-        // FIXME: If a user changes the settings mid game this won't get updated
-        _maxLoanAmount = REPOLoan.maxLoanAmountConfig.Value;
-        _maxLoanTerm = REPOLoan.maxLoanTermConfig.Value;
-        _loanOffersAmount = REPOLoan.loanOffersConfig.Value;
-        _minInterestRate = REPOLoan.minInterestRateConfig.Value;
-        _maxInterestRate = REPOLoan.maxInterestRateConfig.Value;
-
-        ActiveLoans = new List<Loan>();
+    static LoanManager() {
+        ActiveLoans = [];
     }
 
-    public static List<Loan> GetAvailableLoans()
-    {
-        List<Loan> loans = new List<Loan>();
+    public static List<Loan> GetAvailableLoans() {
+        var loanModConfig = REPOLoan.LoanModConfig;
+        List<Loan> loans = [];
 
-        for (int i = 0; i < _loanOffersAmount; i++)
-        {
-            // 1. Random balance (principal)
-            int principal = _rand.Next(1000, _maxLoanAmount + 1);
+        var rng = new Random();
+        for (var x = 0; x < loanModConfig.LoanOffersAmount.Value; x++) {
+            /*
+             Make random principal
+             higher principal gets closer to minInterestRate, lower gets closer to maxInterestRate
+             Hgher principal longer term, lower smaller term
+             */
 
-            // 2. Interest rate: higher principal gets closer to minInterestRate, lower gets closer to maxInterestRate
-            float t = (float)(principal - 1000) / (_maxLoanAmount - 1000);
-            float minRateForThisLoan = Math.Max(_minInterestRate, _maxInterestRate - (_maxInterestRate - _minInterestRate) * t);
-            float maxRateForThisLoan = _maxInterestRate - (_maxInterestRate - _minInterestRate) * t * 0.5f; // prevent overlap
-            float interestRate = (float)(_rand.NextDouble() * (maxRateForThisLoan - minRateForThisLoan) + minRateForThisLoan);
+            var principal = rng.Next(1000, loanModConfig.MaxLoanAmount.Value);
+            var principalMultiplier = (float)principal / loanModConfig.MaxLoanAmount.Value;
 
-            // 3. Max term: longer for higher balances
-            int minTerm = 2;
-            int maxTermForThisLoan = (int)(minTerm + (_maxLoanTerm - minTerm) * t);
-            int term = (int)Math.Round(minTerm + (_maxLoanTerm - minTerm) * t);
-            term = Math.Clamp(term, minTerm, _maxLoanTerm);
+            var interestRate = (loanModConfig.MaxInterestRate.Value - loanModConfig.MinInterestRate.Value) * principalMultiplier;
+            interestRate += loanModConfig.MinInterestRate.Value;
 
-            // 4. Construct loan (interest rate is in percent, as expected)
-            Loan loan = new Loan(principal, term, interestRate);
-            loans.Add(loan);
+            var minTerm = 2;
+            var loanTerm = (loanModConfig.MaxLoanTerm.Value - minTerm) * principalMultiplier;
+            loanTerm += minTerm;
+
+            loans.Add(new Loan(principal, (int)loanTerm, interestRate));
         }
 
-        loans.Sort((a, b) => a.Principal.CompareTo(b.Principal));
-
+        loans.OrderBy(i => i.Principal);
         return loans;
     }
 
-    public static void ActivateLoan(Loan loan)
-    {
+    public static void ActivateLoan(Loan loan) {
         ActiveLoans.Add(loan);
         SaveDataManager.AddLobbyLoan(getLobbyId(), loan);
 
@@ -73,33 +52,26 @@ internal static class LoanManager
         SemiFunc.StatSetRunCurrency(total);
     }
 
-    public static void MakeLoanPayments()
-    {
-        for (int i = ActiveLoans.Count - 1; i >= 0; i--)
-        {
+    public static void MakeLoanPayments() {
+        for (int i = ActiveLoans.Count - 1; i >= 0; i--) {
             Loan loan = ActiveLoans[i];
             int remainingBalance = loan.MakePayment();
 
-            if (remainingBalance < 0)
-            {
+            if (remainingBalance < 0) {
                 ActiveLoans.RemoveAt(i);
                 SaveDataManager.RemoveLobbyLoan(getLobbyId(), loan.LoanID);
             }
         }
     }
 
-    private static string getLobbyId()
-    {
+    private static string getLobbyId() {
         return StatsManager.instance.saveFileCurrent;
     }
 
-    public static Loan[] getNewLoans()
-    {
+    public static Loan[] getNewLoans() {
         List<Loan> newLoans = new List<Loan>();
-        foreach (var loan in ActiveLoans)
-        {
-            if (loan.RemainingTerm == loan.TermLength)
-            {
+        foreach (var loan in ActiveLoans) {
+            if (loan.RemainingTerm == loan.TermLength) {
                 newLoans.Add(loan);
             }
         }
