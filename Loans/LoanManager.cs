@@ -33,6 +33,8 @@ internal static class LoanManager {
             var loanTerm = (loanModConfig.MaxLoanTerm.Value - minTerm) * principalMultiplier;
             loanTerm += minTerm;
 
+            loanTerm = loanTerm < minTerm ? minTerm : loanTerm;
+            interestRate = interestRate < loanModConfig.MinInterestRate.Value ? loanModConfig.MinInterestRate.Value : interestRate;
             loans.Add(new Loan(principal, (int)loanTerm, interestRate));
         }
 
