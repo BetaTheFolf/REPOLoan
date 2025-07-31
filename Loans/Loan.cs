@@ -41,6 +41,8 @@ internal class Loan
         float totalInterest = principal * (interestRate / 100f);
         float totalPayable = principal + totalInterest;
 
+        REPOLoan.Logger.LogInfo($"totalPayable: {totalPayable} / term: {term}");
+
         var payment = (int)totalPayable / term;
         REPOLoan.Logger.LogInfo($"calculatePerLevelPayment: {payment}");
 
