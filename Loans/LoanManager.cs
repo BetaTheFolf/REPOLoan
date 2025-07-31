@@ -50,7 +50,6 @@ internal static class LoanManager {
         int total = currentMoney + (loan.Principal / 1000);
 
         REPOLoan.Logger.LogInfo("Loan activated");
-
         SemiFunc.StatSetRunCurrency(total);
     }
 
